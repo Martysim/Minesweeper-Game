@@ -1,13 +1,13 @@
-let board = [];
+const board = [];
 let rows = 8;
 let columns = 8;
 const icons = {
     flag: "🚩",
     Mine: "💣"
-}
+};
 
-let minsCount = 5;
-var minesLocation = [];
+let minesCount = 5;
+const minesLocation = [];
 
 let tilesClicked = 0;
 let flagEnabaled = false;
@@ -19,16 +19,22 @@ window.onload = function () {
 };
 
 function setMines() {
-    minesLocation.push("2-2");
-    minesLocation.push("2-3");
-    minesLocation.push("5-6");
-    minesLocation.push("3-4");
-    minesLocation.push("1-1");
+    let minesLeft = minesCount;
 
+    while (minesLeft > 0) {
+        const r = Math.floor(Math.random() * rows);
+        const c = Math.floor(Math.random() * columns);
+        const id = r.toString() + "-" + c.toString();
+
+        if (!minesLocation.includes(id)) {
+            minesLocation.push(id);
+            minesLeft -= 1;
+        };
+    };
 };
 
 function startGame() {
-    document.getElementById("mines-count").innerText = minsCount;
+    document.getElementById("mines-count").innerText = minesCount;
     document.getElementById('flag-button').addEventListener('click', setFlag);
     setMines();
 
@@ -36,7 +42,7 @@ function startGame() {
         let row = [];
         for (let c = 0; c < columns; c++) {
             //<div id="0-0"></div>
-            let tile = document.createElement("div");
+            const tile = document.createElement("div");
             tile.id = r.toString() + "-" + c.toString();
             tile.addEventListener("click", clickTile);
             document.getElementById("board").append(tile);
@@ -49,18 +55,17 @@ function startGame() {
 
 function setFlag() {
     if (flagEnabaled) {
-        flagEnabaled = false;
         document.getElementById("flag-button").style.backgroundColor = "lightgray";
     } else {
-        flagEnabaled = true;
         document.getElementById("flag-button").style.backgroundColor = "darkgray";
     };
-
+    flagEnabaled = !flagEnabaled;
 };
 
 function clickTile() {
 
     let tile = this;
+    console.log(tile);
     if (flagEnabaled) {
         if (tile.innerText == "") {
             tile.innerText = icons.flag;
@@ -71,7 +76,7 @@ function clickTile() {
     };
 
     if (minesLocation.includes(tile.id)) {
-        // alert("GAME OVER");
+        alert("GAME OVER");
         gameOver = true;
         revealMines();
         return;
@@ -91,36 +96,55 @@ function revealMines() {
             if (minesLocation.includes(tile.id)) {
                 tile.innerText = icons.Mine;
                 tile.style.backgroundColor = "red"
+
             };
         };
     };
+
 };
 
 function checkMine(r, c) {
     if (r < 0 || r >= rows || c < 0 || c >= columns) {
         return;
     };
+    if (board[r][c].classList.contains("tile-clicked")) {
+        return;
+    };
+    board[r][c].classList.add("tile-clicked")
 
-    let minesFound = 0;
-
+    let minesReplace = 0;
+    //minesaround
     // check up
-    minesFound += checkTiles(r - 1, c - 1); // left
-    minesFound += checkTiles(r - 1, c); //
-    minesFound += checkTiles(r - 1, c + 1); // right
-
-    minesFound += checkTiles(r, c - 1); // left
-    minesFound += checkTiles(r, c + 1); // right
+    minesReplace += checkTiles(r - 1, c - 1); // left
+    minesReplace += checkTiles(r - 1, c); //
+    minesReplace += checkTiles(r - 1, c + 1); // right
+    // DINAMIK
+    minesReplace += checkTiles(r, c - 1); // left
+    minesReplace += checkTiles(r, c + 1); // right
 
     // check down
-    minesFound += checkTiles(r + 1, c - 1); // left
-    minesFound += checkTiles(r + 1, c); //
-    minesFound += checkTiles(r + 1, c + 1); // right
+    minesReplace += checkTiles(r + 1, c - 1); // left
+    minesReplace += checkTiles(r + 1, c); //
+    minesReplace += checkTiles(r + 1, c + 1); // right
 
-    if (minesFound > 0) {
-        board[r][c].innerText = minesFound;
-        board[r][c].classList.add("x" + minesFound.toString());
+    if (minesReplace > 0) {
+        board[r][c].innerText = minesReplace;
+        board[r][c].classList.add("x" + minesReplace.toString());
+    } else {
+        board[r][c].classList.add("darkgray");
+        board[r][c].innerText = 0;
+
+        checkMine(r - 1, c - 1); // left
+        checkMine(r - 1, c); //up
+        checkMine(r - 1, c + 1); // right
+
+        checkMine(r, c - 1); // left
+        checkMine(r, c + 1); // right
+
+        checkMine(r + 1, c - 1); // left
+        checkMine(r + 1, c); //down
+        checkMine(r + 1, c + 1); // right
     };
-
 };
 
 function checkTiles(r, c) {
