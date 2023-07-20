@@ -1,6 +1,6 @@
 const board = [];
-let rows = 8;
-let columns = 8;
+const rows = 8;
+const columns = 8;
 const icons = {
     flag: "🚩",
     Mine: "💣"
@@ -8,15 +8,12 @@ const icons = {
 
 let minesCount = 5;
 const minesLocation = [];
-
 let tilesClicked = 0;
 let flagEnabaled = false;
-
 let gameOver = false;
 
 window.onload = function () {
     startGame();
-
 };
 
 function setMines() {
@@ -26,7 +23,6 @@ function setMines() {
         const r = Math.floor(Math.random() * rows);
         const c = Math.floor(Math.random() * columns);
         const id = r.toString() + "-" + c.toString();
-
         if (!minesLocation.includes(id)) {
             minesLocation.push(id);
             minesLeft -= 1;
@@ -48,10 +44,9 @@ function startGame() {
             tile.addEventListener("click", clickTile);
             document.getElementById("board").append(tile);
             row.push(tile);
-        }
+        };
         board.push(row);
-    }
-    console.log(board);
+    };
 };
 
 function setFlag() {
@@ -79,7 +74,6 @@ function clickTile(event) {
         };
         return;
     };
-
     if (minesLocation.includes(tile.id)) {
         // alert("GAME OVER");
         gameOver = true;
@@ -94,7 +88,6 @@ function clickTile(event) {
     let r = parseInt(coords[0]);
     let c = parseInt(coords[1]);
     checkMine(r, c);
-
 };
 
 function revealMines() {
@@ -104,11 +97,9 @@ function revealMines() {
             if (minesLocation.includes(tile.id)) {
                 tile.innerText = icons.Mine;
                 tile.style.backgroundColor = "red"
-
             };
         };
     };
-
 };
 
 function checkMine(r, c) {
@@ -118,7 +109,6 @@ function checkMine(r, c) {
         down: r + 1,
         center: r
     };
-
     const column = {
         left: c - 1,
         right: c + 1,
@@ -134,8 +124,7 @@ function checkMine(r, c) {
     board[r][c].classList.add("tile-clicked")
     tilesClicked += 1;
 
-    let minesReplace = 0;
-    //minesaround
+    let minesReplace = 0; //minesaround
 
     minesReplace += checkTiles(row.up, column.left);
     minesReplace += checkTiles(row.up, column.center);
@@ -153,7 +142,6 @@ function checkMine(r, c) {
         board[r][c].classList.add("x" + minesReplace.toString());
     } else {
         board[r][c].classList.add("darkgray");
-        // board[r][c].append(document.createElement("span").innerText = 0);
         board[r][c].innerText = 0;
 
         checkMine(row.up, column.left);
@@ -178,7 +166,6 @@ function checkMine(r, c) {
 };
 
 function checkTiles(r, c) {
-    // console.log(r, c);
     if (r < 0 || r >= rows || c < 0 || c >= columns) {
         return 0;
     };
